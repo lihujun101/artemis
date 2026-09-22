@@ -418,7 +418,9 @@ async def _structured_report(llm, messages) -> CheckReport:
     if messages and isinstance(messages[-1], AIMessage):
         messages = [
             *messages,
-            HumanMessage(content="Now call the CheckReport tool with your structured verdict report."),
+            HumanMessage(
+                content="Now call the CheckReport tool with your structured verdict report."
+            ),
         ]
     result = await invoke_llm_with_timeout_message(structured_llm.ainvoke(messages))
     if isinstance(result, CheckReport):
