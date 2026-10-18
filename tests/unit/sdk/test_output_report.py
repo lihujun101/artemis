@@ -31,16 +31,8 @@ async def test_cli_preserves_unspecified_outputter_settings(
     import artemis.interfaces.cli.commands.run as cli
 
     builder = MagicMock()
-    agent = MagicMock()
-    agent.init = AsyncMock()
-    agent.run_task = AsyncMock()
-    agent.clean = AsyncMock()
-    monkeypatch.setattr(cli, "initialize_llm_config", MagicMock())
-    monkeypatch.setattr(cli, "AgentProfile", MagicMock())
-    builders = MagicMock()
-    builders.AgentConfig.with_default_profile.return_value = builder
-    monkeypatch.setattr(cli, "Builders", builders)
-    monkeypatch.setattr(cli, "Agent", MagicMock(return_value=agent))
+    monkeypatch.setattr(cli, "new_default_config_builder", MagicMock(return_value=builder))
+    monkeypatch.setattr(cli, "run_automation", AsyncMock())
     monkeypatch.setattr(cli, "publish_startup_progress", MagicMock())
     monkeypatch.setattr(
         cli,
@@ -70,10 +62,10 @@ async def test_cli_preserves_unspecified_outputter_settings(
 async def test_pro_synthesis_saves_ui_report_without_output_description(
     monkeypatch, tmp_path, result
 ):
-    import artemis.sdk.agent as sdk
+    import third_party.mobile_use.sdk.agent as base_sdk
 
     synthesize = AsyncMock(return_value=result)
-    monkeypatch.setattr(sdk, "outputter", synthesize)
+    monkeypatch.setattr(base_sdk, "outputter", synthesize)
     ctx = SimpleNamespace(
         execution_setup=SimpleNamespace(
             outputter=SimpleNamespace(enabled=True, force_synthesis=True),
@@ -105,10 +97,10 @@ async def test_pro_synthesis_saves_ui_report_without_output_description(
 
 @pytest.mark.asyncio
 async def test_explicit_disable_does_not_generate_report(monkeypatch, tmp_path):
-    import artemis.sdk.agent as sdk
+    import third_party.mobile_use.sdk.agent as base_sdk
 
     synthesize = AsyncMock()
-    monkeypatch.setattr(sdk, "outputter", synthesize)
+    monkeypatch.setattr(base_sdk, "outputter", synthesize)
     ctx = SimpleNamespace(
         execution_setup=SimpleNamespace(
             outputter=SimpleNamespace(enabled=True, force_synthesis=True),
